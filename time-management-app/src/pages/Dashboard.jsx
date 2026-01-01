@@ -126,7 +126,7 @@ const Dashboard = () => {
   if (!confirmClear) return;
 
   for (const task of tasks) {
-    await deleteTaskFromDB(user.uid, task.id);
+    await deleteTaskFromDB(task.id);
   }
 
   setTasks([]);
