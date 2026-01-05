@@ -18,6 +18,14 @@ const Dashboard = () => {
   const [input, setInput] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [editingText, setEditingText] = useState("");
+  const [filter, setFilter] = useState("all");
+
+  const filteredTasks = tasks.filter((task) => {
+    if (filter === "active") return !task.completed;
+    if (filter === "completed") return task.completed;
+    return true; // "all"
+  });
+
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -34,6 +42,66 @@ const Dashboard = () => {
 
     // cleanup auth listener
     return () => unsubscribeAuth();
+  }, []);
+
+  // ensure the whole document body uses the same background as this page
+  useEffect(() => {
+    const prev = {
+      background: document.body.style.background,
+      backgroundAttachment: document.body.style.backgroundAttachment,
+      backgroundSize: document.body.style.backgroundSize,
+      color: document.body.style.color,
+      minHeight: document.body.style.minHeight,
+      overflow: document.body.style.overflow,
+      htmlOverflow: document.documentElement.style.overflow,
+      htmlHeight: document.documentElement.style.height,
+      bodyHeight: document.body.style.height,
+    };
+
+    const pageBg = "linear-gradient(180deg, rgba(15,23,42,0.72), rgba(8,12,20,0.72))";
+    document.documentElement.style.height = "100%";
+    document.body.style.height = "100%";
+    document.body.style.background = pageBg;
+    document.body.style.backgroundAttachment = "fixed";
+    document.body.style.backgroundSize = "cover";
+    document.body.style.color = "#E6EEF3";
+    document.body.style.minHeight = "100vh";
+    // hide native scrollbars (vertical + horizontal)
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    // also hide scrollbar and overflow on root container (commonly #root)
+    const rootEl = document.getElementById("root");
+    const prevRoot = rootEl ? { overflow: rootEl.style.overflow, height: rootEl.style.height } : null;
+    if (rootEl) {
+      rootEl.style.overflow = "hidden";
+      rootEl.style.height = "100%";
+    }
+
+    // inject small style to hide webkit scrollbars and ensure no scrolling
+    const styleEl = document.createElement("style");
+    styleEl.id = "dashboard-hide-scrollbars";
+    styleEl.textContent = `html, body, #root { overflow: hidden !important; height: 100% !important; }
+body::-webkit-scrollbar { display: none; width: 0; height: 0; }`;
+    document.head.appendChild(styleEl);
+
+    return () => {
+      document.body.style.background = prev.background || "";
+      document.body.style.backgroundAttachment = prev.backgroundAttachment || "";
+      document.body.style.backgroundSize = prev.backgroundSize || "";
+      document.body.style.color = prev.color || "";
+      document.body.style.minHeight = prev.minHeight || "";
+      document.body.style.overflow = prev.overflow || "";
+      document.documentElement.style.overflow = prev.htmlOverflow || "";
+      document.documentElement.style.height = prev.htmlHeight || "";
+      document.body.style.height = prev.bodyHeight || "";
+      if (rootEl && prevRoot) {
+        rootEl.style.overflow = prevRoot.overflow || "";
+        rootEl.style.height = prevRoot.height || "";
+      }
+      const existing = document.getElementById("dashboard-hide-scrollbars");
+      if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+    };
   }, []);
 
 
@@ -160,12 +228,46 @@ const Dashboard = () => {
       </div>
     </div>
 
+      {/** Filter Buttons */}
+      <div style={styles.filterBar}>
+        <button
+          style={{
+            ...styles.filterButton,
+            ...(filter === "all" ? styles.filterButtonActive : {}),
+          }}
+          onClick={() => setFilter("all")}
+        >
+          All
+        </button>
+
+        <button
+          style={{
+            ...styles.filterButton,
+            ...(filter === "active" ? styles.filterButtonActive : {}),
+          }}
+          onClick={() => setFilter("active")}
+        >
+          Active
+        </button>
+
+        <button
+          style={{
+            ...styles.filterButton,
+            ...(filter === "completed" ? styles.filterButtonActive : {}),
+          }}
+          onClick={() => setFilter("completed")}
+        >
+          Completed
+        </button>
+      </div>
+
+
 
       {/* Task List Card */}
       <div style={styles.card}>
         {tasks.length === 0 && <p>No tasks yet</p>}
 
-        {tasks.map((task) => (
+        {filteredTasks.map((task) => (
           <div
             key={task.id}
             style={{
@@ -231,20 +333,45 @@ const Dashboard = () => {
 
 const styles = {
   page: {
-    maxWidth: "900px",
-    margin: "0 auto",
-    padding: "24px",
+    maxWidth: "100%",
+    margin: "0",
+    padding: "48px 20px",
     fontFamily: "Arial, sans-serif",
-    background: "#f7f9fb",
-    minHeight: "100vh",
+    background: "transparent",
+    height: "100%",
+    maxHeight: "100vh",
+    color: "inherit",
   },
+filterBar: {
+  display: "flex",
+  gap: "10px",
+  marginBottom: "16px",
+},
+filterButton: {
+  padding: "8px 14px",
+  borderRadius: "10px",
+  border: "none",
+  background: "rgba(255,255,255,0.04)",
+  color: "#E6F7FF",
+  cursor: "pointer",
+  backdropFilter: "blur(8px)",
+  transition: "all 0.2s ease",
+},
+filterButtonActive: {
+  background: "linear-gradient(135deg, #a75885, #8f3a76)",
+  color: "#fff",
+  boxShadow: "0 12px 30px rgba(167,88,133,0.28)",
+},
+
   card: {
-    background: "rgba(255, 255, 255, 0.7)",
-    backdropFilter: "blur(12px)",
-    borderRadius: "16px",
-    padding: "24px",
-    boxShadow: "0 10px 30px rgba(0, 0, 0, 0.08)",
-    marginBottom: "32px",
+    background: "rgba(0,0,0,0.35)",
+    backdropFilter: "blur(8px)",
+    borderRadius: "14px",
+    padding: "22px",
+    boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+    marginBottom: "28px",
+    color: "inherit",
+    border: "1px solid rgba(255,255,255,0.03)",
   },
   cardTitle: {
     marginBottom: "16px",
@@ -260,8 +387,9 @@ const styles = {
     padding: "14px 16px",
     fontSize: "16px",
     borderRadius: "12px",
-    border: "1px solid rgba(0,0,0,0.1)",
-    background: "rgba(255,255,255,0.9)",
+    border: "1px solid rgba(255,255,255,0.04)",
+    background: "rgba(255,255,255,0.02)",
+    color: "inherit",
     outline: "none",
   },
 
@@ -274,14 +402,14 @@ const styles = {
     borderRadius: "14px",
     cursor: "pointer",
 
-    background: "linear-gradient(135deg, #3b82f6, #2563eb)",
-    boxShadow: "0 8px 20px rgba(37, 99, 235, 0.45)",
+    background: "linear-gradient(135deg, #a75885, #8f3a76)",
+    boxShadow: "0 10px 28px rgba(167,88,133,0.28)",
   },
     clearButton: {
     padding: "8px 14px",
     borderRadius: "10px",
     border: "none",
-    background: "#ef4444",
+    background: "#a75885",
     color: "#fff",
     fontWeight: "600",
     cursor: "pointer",
@@ -293,20 +421,22 @@ const styles = {
     justifyContent: "space-between",
     gap: "12px",
     padding: "10px 0",
-    borderBottom: "1px solid #eee",
+    borderBottom: "1px solid rgba(255,255,255,0.03)",
+    borderLeft: "4px solid rgba(255,255,255,0.02)",
   },
   actions: {
     display: "flex",
     gap: "8px",
   },
   footer: {
-    background: "#e6f7f3",
+    background: "rgba(0,0,0,0.28)",
     padding: "14px",
     borderRadius: "12px",
-    fontWeight: "bold",
+    fontWeight: "700",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    color: "#E6F7FF",
   },
 };
 
