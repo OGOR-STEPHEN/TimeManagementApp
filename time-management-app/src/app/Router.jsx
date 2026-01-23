@@ -8,6 +8,7 @@ import { SettingsProvider } from "../context/SettingsContext";
 import { AuthProvider } from "../context/AuthContext";
 import ProtectedRoute from "../components/ProtectedRoute";
 import PublicRoute from "../components/PublicRoute";
+import Profile from "../pages/Profile.jsx";
 
 const Router = () => {
   return (
@@ -55,6 +56,14 @@ const Router = () => {
               element={
                 <ProtectedRoute>
                   <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               }
             />
