@@ -4,7 +4,7 @@ import { ArrowLeft, LogOut } from "lucide-react";
 import { SettingsContext } from "../context/SettingsContext";
 import { useAuth } from "../context/AuthContext";
 import { db } from "../firebase/config";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { logoutUser } from "../firebase/auth";
 
 const Profile = () => {
@@ -26,7 +26,10 @@ const Profile = () => {
   // Fetch user profile data from Firestore
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       try {
         const userDocRef = doc(db, "users", user.uid);
@@ -34,12 +37,14 @@ const Profile = () => {
 
         if (userDocSnap.exists()) {
           const userData = userDocSnap.data();
+          console.log("User data from Firestore:", userData);
           setProfile({
             fullName: userData.fullName || "",
             email: userData.email || user.email || "",
             username: userData.username || "",
           });
         } else {
+          console.log("No user document found in Firestore");
           // Fallback to Firebase auth data if no Firestore document
           setProfile({
             fullName: user.displayName || "",
@@ -72,13 +77,25 @@ const Profile = () => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!user) return;
+    
     setIsSaving(true);
-    // TODO: Implement save to Firestore
-    setTimeout(() => {
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      await updateDoc(userDocRef, {
+        fullName: profile.fullName,
+        email: profile.email,
+        username: profile.username,
+        updatedAt: new Date(),
+      });
+      
       setIsEditing(false);
+    } catch (error) {
+      console.error("Error saving profile:", error);
+    } finally {
       setIsSaving(false);
-    }, 500);
+    }
   };
 
   const handleLogout = async () => {

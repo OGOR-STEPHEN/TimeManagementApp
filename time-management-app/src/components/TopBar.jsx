@@ -1,13 +1,38 @@
 import { User, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import { SettingsContext } from "../context/SettingsContext";
+import { useAuth } from "../context/AuthContext";
+import { db } from "../firebase/config";
+import { doc, getDoc } from "firebase/firestore";
 
 
 const TopBar = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const contextValue = useContext(SettingsContext);
   const { theme } = contextValue || {};
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      if (!user) return;
+
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          setUsername(userData.username || "");
+        }
+      } catch (error) {
+        console.error("Error fetching username:", error);
+      }
+    };
+
+    fetchUsername();
+  }, [user]);
 
   const getStyles = (themeObj) => {
     if (!themeObj) return styles;
@@ -72,7 +97,9 @@ const TopBar = () => {
 
   return (
     <header style={getStyles(theme).topBar}>
-      <h2 style={getStyles(theme).title}>Daily Task Tracker</h2>
+      <h2 style={getStyles(theme).title}>
+        {username ? `Hello ${username}` : "Daily Task Tracker"}
+      </h2>
 
       <div style={getStyles(theme).right}>
         <button style={getStyles(theme).iconButton}

@@ -14,18 +14,29 @@ export const logoutUser = () => signOut(auth);
 
 // Create account with user data
 export const signupUser = async (email, password, fullName, username) => {
-  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-  const user = userCredential.user;
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
 
-  // Store additional user data in Firestore
-  await setDoc(doc(db, "users", user.uid), {
-    fullName: fullName,
-    email: email,
-    username: username,
-    createdAt: new Date(),
-  });
+    // Store additional user data in Firestore
+    try {
+      await setDoc(doc(db, "users", user.uid), {
+        fullName: fullName,
+        email: email,
+        username: username,
+        createdAt: new Date(),
+      });
+      console.log("User document created in Firestore");
+    } catch (firestoreError) {
+      console.error("Firestore error:", firestoreError);
+      throw new Error(`Failed to save user profile: ${firestoreError.message}`);
+    }
 
-  return userCredential;
+    return userCredential;
+  } catch (error) {
+    console.error("Auth error:", error);
+    throw error;
+  }
 };
 
 // Reset password

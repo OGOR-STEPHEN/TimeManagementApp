@@ -105,9 +105,11 @@ const Signup = () => {
 
     try {
       await signupUser(email, password, name, username);
+      console.log("User signed up successfully");
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message);
+      console.error("Signup error:", err);
+      setError(err.message || "An error occurred during signup");
     }
   };
 
