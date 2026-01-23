@@ -1,10 +1,14 @@
 import TopBar from "../components/TopBar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
+import { auth } from "../firebase/config";
+import { deleteTaskFromDB, fetchTasksFromDB } from "../firebase/tasks";
+import { SettingsContext } from "../context/SettingsContext";
 
 const Settings = () => {
   const navigate = useNavigate();
+  const { settings, saveSettings } = useContext(SettingsContext);
 
   useEffect(() => {
     const pageBg = "linear-gradient(180deg, rgba(15,23,42,0.72), rgba(8,12,20,0.72))";
@@ -15,19 +19,45 @@ const Settings = () => {
     document.body.style.color = "#E6EEF3";
   }, []);
 
-  const [theme, setTheme] = useState("dark");
-  const [hideCompleted, setHideCompleted] = useState(true);
+  const [theme, setTheme] = useState(settings.theme || "dark");
+  const [hideCompleted, setHideCompleted] = useState(settings.hideCompleted || false);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
 
-    // Firebase save will go here later
-    // await updateUserSettings({ theme, hideCompleted });
+    // Save to context
+    await saveSettings({ theme, hideCompleted });
 
     setTimeout(() => {
       setSaving(false);
     }, 800);
+  };
+
+  const handleClearCompletedTasks = async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const confirmClear = window.confirm(
+      "This will delete all completed tasks. Continue?"
+    );
+
+    if (!confirmClear) return;
+
+    setSaving(true);
+
+    // Fetch current tasks to get completed ones
+    const unsubscribe = fetchTasksFromDB(user.uid, async (tasks) => {
+      const completedTasks = tasks.filter((task) => task.completed);
+
+      // Delete each completed task
+      for (const task of completedTasks) {
+        await deleteTaskFromDB(task.id);
+      }
+
+      setSaving(false);
+      unsubscribe();
+    });
   };
 
   return (
@@ -99,6 +129,7 @@ const Settings = () => {
 
           <button 
             style={styles.secondaryButton}
+            onClick={handleClearCompletedTasks}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "linear-gradient(135deg, #A75885, #8F3A76)";
               e.currentTarget.style.boxShadow = "0 10px 28px rgba(167,88,133,0.28)";

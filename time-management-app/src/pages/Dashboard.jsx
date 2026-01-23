@@ -8,12 +8,14 @@ import {
 import { onAuthStateChanged } from "firebase/auth";
 import { onSnapshot, collection, query, orderBy } from "firebase/firestore";
 import { db } from "../firebase/config";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import TopBar from "../components/TopBar";
 import { Trash2, Save, Edit, Check } from "lucide-react";
+import { SettingsContext } from "../context/SettingsContext";
 
 const Dashboard = () => {
   // console.log("USER:", auth.currentUser);
+  const { settings } = useContext(SettingsContext);
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState("");
   const [editingId, setEditingId] = useState(null);
@@ -21,6 +23,7 @@ const Dashboard = () => {
   const [filter, setFilter] = useState("all");
 
   const filteredTasks = tasks.filter((task) => {
+    if (settings.hideCompleted && task.completed) return false;
     if (filter === "active") return !task.completed;
     if (filter === "completed") return task.completed;
     return true; // "all"
@@ -265,8 +268,11 @@ body::-webkit-scrollbar { display: none; width: 0; height: 0; }`;
           style={{
             ...styles.filterButton,
             ...(filter === "completed" ? styles.filterButtonActive : {}),
+            ...(settings.hideCompleted ? styles.filterButtonDisabled : {}),
           }}
-          onClick={() => setFilter("completed")}
+          onClick={() => !settings.hideCompleted && setFilter("completed")}
+          disabled={settings.hideCompleted}
+          title={settings.hideCompleted ? "Completed tasks are hidden" : ""}
         >
           Completed
         </button>
@@ -385,6 +391,10 @@ filterButtonActive: {
   background: "linear-gradient(135deg, #a75885, #8f3a76)",
   color: "#fff",
   boxShadow: "0 12px 30px rgba(167,88,133,0.28)",
+},
+filterButtonDisabled: {
+  opacity: 0.5,
+  cursor: "not-allowed",
 },
 
   card: {
