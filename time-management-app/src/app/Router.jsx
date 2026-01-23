@@ -3,6 +3,7 @@ import Login from "../pages/Login.jsx";
 import Signup from "../pages/Signup";
 import Dashboard from "../pages/Dashboard";
 import ForgotPassword from "../pages/ForgotPassword.jsx";
+import Settings from "../pages/Settings.jsx";
 
 const Router = () => {
   return (
@@ -12,6 +13,7 @@ const Router = () => {
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </BrowserRouter>
   );

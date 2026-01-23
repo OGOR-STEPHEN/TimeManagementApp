@@ -213,14 +213,25 @@ body::-webkit-scrollbar { display: none; width: 0; height: 0; }`;
       <h3>Add New Task</h3>
 
       <div style={styles.addRow}>
-        <input
-          autoFocus
-          type="text"
-          placeholder="Add a task..."
-          style={styles.input}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-        />
+      <input
+        autoFocus
+        type="text"
+        placeholder="Add a task..."
+        style={styles.input}
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            addTask();
+          }
+
+          if ((e.metaKey || e.ctrlKey) && e.key === "Backspace") {
+            e.preventDefault();
+            setInput("");
+          }
+        }}
+      />
 
         <button style={styles.addButton} onClick={addTask}>
           + Add
@@ -282,11 +293,24 @@ body::-webkit-scrollbar { display: none; width: 0; height: 0; }`;
           />
 
           {editingId === task.id ? (
-            <input
-              value={editingText}
-              onChange={(e) => setEditingText(e.target.value)}
-              style={{ ...styles.input, marginRight: "12px" }}
-            />
+          <input
+            value={editingText}
+            autoFocus
+            onChange={(e) => setEditingText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                saveEdit(task.id);
+              }
+
+              if (e.key === "Escape") {
+                setEditingId(null);
+                setEditingText("");
+              }
+            }}
+            style={{ ...styles.input, marginRight: "12px" }}
+          />
+
           ) : (
               <span
                 style={{

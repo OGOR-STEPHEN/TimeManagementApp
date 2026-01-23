@@ -1,14 +1,33 @@
+import { User, Settings } from "lucide-react";
+
+
 const TopBar = () => {
   return (
     <header style={styles.topBar}>
       <h2 style={styles.title}>Daily Task Tracker</h2>
 
       <div style={styles.right}>
-        <button style={styles.icon}>⚙️</button>
-        <div style={styles.avatar}>👤</div>
+        <button style={styles.iconButton}
+          onClick={() => navigate("/settings")}
+          title="Settings"
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+          }}
+        >
+          <Settings size={20} />
+        </button>
+        <button style={styles.iconButton} title="Profile"
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+          }}
+        >
+          <User size={20} />
+        </button>
       </div>
     </header>
   );
+
+
 };
 
 const styles = {
@@ -41,6 +60,20 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
   },
+    iconButton: {
+    width: "42px",
+    height: "42px",
+    borderRadius: "12px",
+    border: "1px solid rgba(255,255,255,0.06)",
+    background: "rgba(255,255,255,0.04)",
+    color: "#E6F7FF",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    backdropFilter: "blur(8px)",
+    transition: "all 0.2s ease",
+  },  
 };
 
 export default TopBar;
