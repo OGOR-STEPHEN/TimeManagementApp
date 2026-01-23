@@ -88,6 +88,7 @@ const styles = {
 const Signup = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -103,7 +104,7 @@ const Signup = () => {
     }
 
     try {
-      await signupUser(email, password);
+      await signupUser(email, password, name, username);
       navigate("/dashboard");
     } catch (err) {
       setError(err.message);
@@ -133,6 +134,15 @@ const Signup = () => {
             placeholder="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
+            style={styles.input}
+          />
+
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
             style={styles.input}
           />

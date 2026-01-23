@@ -70,6 +70,15 @@ const Login = () => {
         <Link to="/forgot-password" style={getStyles(theme).forgot}>
           Forgot password?
         </Link>
+
+        <div style={getStyles(theme).footerSection}>
+          <p style={getStyles(theme).footerText}>
+            Don't have an account?{" "}
+            <Link to="/signup" style={getStyles(theme).link}>
+              Create an account
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -160,6 +169,22 @@ const getStyles = (theme) => {
       textDecoration: "none",
       fontWeight: "600",
     },
+    footerSection: {
+      marginTop: "20px",
+      paddingTop: "16px",
+      borderTop: `1px solid ${theme.border}`,
+    },
+    footerText: {
+      fontSize: "13px",
+      color: theme.textSecondary,
+      margin: "0",
+    },
+    link: {
+      color: theme.text,
+      textDecoration: "none",
+      fontWeight: "700",
+      cursor: "pointer",
+    },
   };
 };
 
@@ -241,6 +266,22 @@ const styles = {
     color: "#E6F7FF",
     textDecoration: "none",
     fontWeight: "600",
+  },
+  footerSection: {
+    marginTop: "20px",
+    paddingTop: "16px",
+    borderTop: "1px solid rgba(255,255,255,0.05)",
+  },
+  footerText: {
+    fontSize: "13px",
+    color: "#B6C2CF",
+    margin: "0",
+  },
+  link: {
+    color: "#E6F7FF",
+    textDecoration: "none",
+    fontWeight: "700",
+    cursor: "pointer",
   },
 };
 

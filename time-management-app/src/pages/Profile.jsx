@@ -2,20 +2,60 @@ import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, LogOut } from "lucide-react";
 import { SettingsContext } from "../context/SettingsContext";
+import { useAuth } from "../context/AuthContext";
+import { db } from "../firebase/config";
+import { doc, getDoc } from "firebase/firestore";
+import { logoutUser } from "../firebase/auth";
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const contextValue = useContext(SettingsContext);
   const { theme: themeObj } = contextValue || {};
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [profile, setProfile] = useState({
-    fullName: "Alex Johnson",
-    email: "alex.johnson@example.com",
-    username: "alexj",
+    fullName: "",
+    email: "",
+    username: "",
   });
+
+  // Fetch user profile data from Firestore
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!user) return;
+
+      try {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          setProfile({
+            fullName: userData.fullName || "",
+            email: userData.email || user.email || "",
+            username: userData.username || "",
+          });
+        } else {
+          // Fallback to Firebase auth data if no Firestore document
+          setProfile({
+            fullName: user.displayName || "",
+            email: user.email || "",
+            username: (user.displayName || "").toLowerCase().replace(/\s+/g, ""),
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
 
   // Set background and theme
   useEffect(() => {
@@ -34,19 +74,33 @@ const Profile = () => {
 
   const handleSave = () => {
     setIsSaving(true);
-    // Simulate save
+    // TODO: Implement save to Firestore
     setTimeout(() => {
       setIsEditing(false);
       setIsSaving(false);
     }, 500);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (window.confirm("Are you sure you want to log out?")) {
-      // Add logout logic here
-      navigate("/login");
+      try {
+        await logoutUser();
+        navigate("/login");
+      } catch (error) {
+        console.error("Error logging out:", error);
+      }
     }
   };
+
+  if (loading) {
+    return (
+      <div style={getStyles(themeObj).page}>
+        <div style={{ textAlign: "center", paddingTop: "100px", color: themeObj?.text || "#E6EEF3" }}>
+          Loading profile...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={getStyles(themeObj).page}>
