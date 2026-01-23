@@ -15,7 +15,8 @@ import { SettingsContext } from "../context/SettingsContext";
 
 const Dashboard = () => {
   // console.log("USER:", auth.currentUser);
-  const { settings } = useContext(SettingsContext);
+  const contextValue = useContext(SettingsContext);
+  const { settings = { hideCompleted: false } } = contextValue || {};
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState("");
   const [editingId, setEditingId] = useState(null);

@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { useAuth } from "./AuthContext";
 
-const SettingsContext = createContext();
+export const SettingsContext = createContext();
 
 export const SettingsProvider = ({ children }) => {
   const { user } = useAuth();
