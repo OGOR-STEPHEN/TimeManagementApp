@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { useAuth } from "./AuthContext";
+import { getTheme } from "../config/themes";
 
 export const SettingsContext = createContext();
 
@@ -13,8 +14,21 @@ export const SettingsProvider = ({ children }) => {
   });
   const [loading, setLoading] = useState(true);
 
+  // Apply theme to document
   useEffect(() => {
-    if (!user) return;
+    const theme = getTheme(settings.theme);
+    document.body.style.background = theme.background;
+    document.body.style.backgroundAttachment = "fixed";
+    document.body.style.backgroundSize = "cover";
+    document.body.style.color = theme.text;
+    document.body.style.minHeight = "100vh";
+  }, [settings.theme]);
+
+  useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     const loadSettings = async () => {
       const ref = doc(db, "users", user.uid, "settings", "preferences");
@@ -42,8 +56,10 @@ export const SettingsProvider = ({ children }) => {
     });
   };
 
+  const currentTheme = getTheme(settings.theme);
+
   return (
-    <SettingsContext.Provider value={{ settings, saveSettings, loading }}>
+    <SettingsContext.Provider value={{ settings, saveSettings, loading, theme: currentTheme }}>
       {children}
     </SettingsContext.Provider>
   );

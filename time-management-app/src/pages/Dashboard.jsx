@@ -16,7 +16,7 @@ import { SettingsContext } from "../context/SettingsContext";
 const Dashboard = () => {
   // console.log("USER:", auth.currentUser);
   const contextValue = useContext(SettingsContext);
-  const { settings = { hideCompleted: false } } = contextValue || {};
+  const { settings = { hideCompleted: false }, theme } = contextValue || {};
   const [tasks, setTasks] = useState([]);
   const [input, setInput] = useState("");
   const [editingId, setEditingId] = useState(null);
@@ -32,21 +32,11 @@ const Dashboard = () => {
 
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        setTasks([]);
-        return;
-      }
-
-      const unsubscribeTasks = fetchTasksFromDB(user.uid, setTasks);
-
-      // cleanup Firestore listener
-      return () => unsubscribeTasks();
-    });
-
-    // cleanup auth listener
-    return () => unsubscribeAuth();
-  }, []);
+    if (theme) {
+      document.body.style.background = theme.background;
+      document.body.style.color = theme.text;
+    }
+  }, [theme]);
 
   // ensure the whole document body uses the same background as this page
   useEffect(() => {
@@ -62,13 +52,15 @@ const Dashboard = () => {
       bodyHeight: document.body.style.height,
     };
 
-    const pageBg = "linear-gradient(180deg, rgba(15,23,42,0.72), rgba(8,12,20,0.72))";
+    const pageBg = theme?.background || "linear-gradient(180deg, rgba(15,23,42,0.72), rgba(8,12,20,0.72))";
+    const textColor = theme?.text || "#E6EEF3";
+    
     document.documentElement.style.height = "100%";
     document.body.style.height = "100%";
     document.body.style.background = pageBg;
     document.body.style.backgroundAttachment = "fixed";
     document.body.style.backgroundSize = "cover";
-    document.body.style.color = "#E6EEF3";
+    document.body.style.color = textColor;
     document.body.style.minHeight = "100vh";
     // hide native scrollbars (vertical + horizontal)
     document.body.style.overflow = "hidden";
@@ -106,6 +98,23 @@ body::-webkit-scrollbar { display: none; width: 0; height: 0; }`;
       const existing = document.getElementById("dashboard-hide-scrollbars");
       if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
     };
+  }, [theme]);
+
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        setTasks([]);
+        return;
+      }
+
+      const unsubscribeTasks = fetchTasksFromDB(user.uid, setTasks);
+
+      // cleanup Firestore listener
+      return () => unsubscribeTasks();
+    });
+
+    // cleanup auth listener
+    return () => unsubscribeAuth();
   }, []);
 
 

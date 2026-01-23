@@ -8,16 +8,18 @@ import { SettingsContext } from "../context/SettingsContext";
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { settings, saveSettings } = useContext(SettingsContext);
+  const contextValue = useContext(SettingsContext);
+  const { settings = { theme: "dark", hideCompleted: false }, saveSettings = () => {}, theme: themeObj } = contextValue || {};
 
   useEffect(() => {
-    const pageBg = "linear-gradient(180deg, rgba(15,23,42,0.72), rgba(8,12,20,0.72))";
-    document.body.style.background = pageBg;
-    document.body.style.backgroundAttachment = "fixed";
-    document.body.style.backgroundSize = "cover";
-    document.body.style.minHeight = "100vh";
-    document.body.style.color = "#E6EEF3";
-  }, []);
+    if (themeObj) {
+      document.body.style.background = themeObj.background;
+      document.body.style.backgroundAttachment = "fixed";
+      document.body.style.backgroundSize = "cover";
+      document.body.style.minHeight = "100vh";
+      document.body.style.color = themeObj.text;
+    }
+  }, [themeObj]);
 
   const [theme, setTheme] = useState(settings.theme || "dark");
   const [hideCompleted, setHideCompleted] = useState(settings.hideCompleted || false);
@@ -61,23 +63,23 @@ const Settings = () => {
   };
 
   return (
-    <div style={styles.page}>
+    <div style={getStyles(themeObj).page}>
       <TopBar />
-      <h2 style={styles.title}>Settings</h2>
+      <h2 style={getStyles(themeObj).title}>Settings</h2>
 
-      <div style={styles.card}>
+      <div style={getStyles(themeObj).card}>
         {/* Appearance */}
-        <div style={styles.section}>
+        <div style={getStyles(themeObj).section}>
           <div>
-            <h4 style={styles.sectionTitle}>Appearance</h4>
-            <p style={styles.muted}>Switch between light and dark themes</p>
+            <h4 style={getStyles(themeObj).sectionTitle}>Appearance</h4>
+            <p style={getStyles(themeObj).muted}>Switch between light and dark themes</p>
           </div>
 
-          <div style={styles.toggleGroup}>
+          <div style={getStyles(themeObj).toggleGroup}>
             <button
               style={{
-                ...styles.toggleButton,
-                ...(theme === "light" ? styles.toggleActive : {}),
+                ...getStyles(themeObj).toggleButton,
+                ...(theme === "light" ? getStyles(themeObj).toggleActive : {}),
               }}
               onClick={() => setTheme("light")}
             >
@@ -85,8 +87,8 @@ const Settings = () => {
             </button>
             <button
               style={{
-                ...styles.toggleButton,
-                ...(theme === "dark" ? styles.toggleActive : {}),
+                ...getStyles(themeObj).toggleButton,
+                ...(theme === "dark" ? getStyles(themeObj).toggleActive : {}),
               }}
               onClick={() => setTheme("dark")}
             >
@@ -96,24 +98,24 @@ const Settings = () => {
         </div>
 
         {/* Task Preferences */}
-        <div style={styles.section}>
+        <div style={getStyles(themeObj).section}>
           <div>
-            <h4 style={styles.sectionTitle}>Task Preferences</h4>
-            <p style={styles.muted}>Hide tasks you've already completed</p>
+            <h4 style={getStyles(themeObj).sectionTitle}>Task Preferences</h4>
+            <p style={getStyles(themeObj).muted}>Hide tasks you've already completed</p>
           </div>
 
           <button
             style={{
-              ...styles.sliderButton,
+              ...getStyles(themeObj).sliderButton,
               background: hideCompleted
                 ? "linear-gradient(135deg, #A75885, #8F3A76)"
-                : "rgba(255,255,255,0.08)",
+                : themeObj?.buttonBackground || "rgba(255,255,255,0.08)",
             }}
             onClick={() => setHideCompleted(!hideCompleted)}
           >
             <span
               style={{
-                ...styles.sliderDot,
+                ...getStyles(themeObj).sliderDot,
                 transform: hideCompleted ? "translateX(20px)" : "translateX(0)",
               }}
             />
@@ -121,21 +123,21 @@ const Settings = () => {
         </div>
 
         {/* Data */}
-        <div style={styles.section}>
+        <div style={getStyles(themeObj).section}>
           <div>
-            <h4 style={styles.sectionTitle}>Data</h4>
-            <p style={styles.muted}>Manage your task history</p>
+            <h4 style={getStyles(themeObj).sectionTitle}>Data</h4>
+            <p style={getStyles(themeObj).muted}>Manage your task history</p>
           </div>
 
           <button 
-            style={styles.secondaryButton}
+            style={getStyles(themeObj).secondaryButton}
             onClick={handleClearCompletedTasks}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = "linear-gradient(135deg, #A75885, #8F3A76)";
               e.currentTarget.style.boxShadow = "0 10px 28px rgba(167,88,133,0.28)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+              e.currentTarget.style.background = themeObj?.buttonBackground || "rgba(255,255,255,0.04)";
               e.currentTarget.style.boxShadow = "none";
             }}
           >
@@ -144,10 +146,10 @@ const Settings = () => {
         </div>
 
         {/* Save */}
-        <div style={styles.saveRow}>
+        <div style={getStyles(themeObj).saveRow}>
           <button
             style={{
-              ...styles.primaryButton,
+              ...getStyles(themeObj).primaryButton,
               opacity: saving ? 0.6 : 1,
             }}
             disabled={saving}
@@ -159,7 +161,7 @@ const Settings = () => {
       </div>
 
       {/* Back */}
-      <button style={styles.backButton} onClick={() => navigate("/dashboard")}>
+      <button style={getStyles(themeObj).backButton} onClick={() => navigate("/dashboard")}>
         <ArrowLeft size={16} />
         Back to dashboard
       </button>
@@ -282,6 +284,127 @@ const styles = {
     opacity: 0.8,
     transition: "all 0.2s ease",
   },
+};
+
+const getStyles = (theme) => {
+  if (!theme) return styles;
+
+  return {
+    page: {
+      maxWidth: "900px",
+      margin: "0 auto",
+      padding: "48px 20px",
+      color: theme.text,
+      minHeight: "100vh",
+    },
+    title: {
+      fontSize: "28px",
+      fontWeight: 700,
+      marginBottom: "24px",
+      color: theme.text,
+    },
+    card: {
+      background: theme.cardBackground,
+      backdropFilter: theme.backdropFilter,
+      borderRadius: "18px",
+      padding: "32px",
+      boxShadow: theme.shadow,
+      border: `1px solid ${theme.border}`,
+    },
+    section: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "20px 0",
+      borderBottom: `1px solid ${theme.border}`,
+    },
+    sectionTitle: {
+      fontSize: "15px",
+      fontWeight: 600,
+      marginBottom: "4px",
+      color: theme.text,
+    },
+    muted: {
+      fontSize: "13px",
+      opacity: 0.65,
+      color: theme.textMuted,
+    },
+    sliderButton: {
+      width: "48px",
+      height: "28px",
+      borderRadius: "20px",
+      border: "none",
+      cursor: "pointer",
+      position: "relative",
+      padding: 0,
+      transition: "background 0.3s ease",
+    },
+    sliderDot: {
+      position: "absolute",
+      width: "24px",
+      height: "24px",
+      borderRadius: "50%",
+      background: theme.name === "dark" ? "#fff" : "#1F2937",
+      top: "2px",
+      left: "2px",
+      transition: "transform 0.3s ease",
+    },
+    toggleGroup: {
+      display: "flex",
+      gap: "8px",
+    },
+    toggleButton: {
+      padding: "8px 16px",
+      borderRadius: "10px",
+      border: "none",
+      background: theme.buttonBackground,
+      color: theme.text,
+      cursor: "pointer",
+      transition: "all 0.2s ease",
+    },
+    toggleActive: {
+      background: "linear-gradient(135deg, #A75885, #8F3A76)",
+      boxShadow: "0 10px 28px rgba(167,88,133,0.28)",
+      color: "#fff",
+    },
+    secondaryButton: {
+      padding: "8px 14px",
+      borderRadius: "10px",
+      border: "none",
+      background: theme.buttonBackground,
+      color: theme.text,
+      cursor: "pointer",
+      transition: "all 0.2s ease",
+    },
+    saveRow: {
+      display: "flex",
+      justifyContent: "flex-end",
+      marginTop: "24px",
+    },
+    primaryButton: {
+      padding: "12px 24px",
+      borderRadius: "14px",
+      border: "none",
+      cursor: "pointer",
+      fontWeight: 600,
+      color: "#fff",
+      background: "linear-gradient(135deg, #A75885, #8F3A76)",
+      boxShadow: "0 10px 28px rgba(167,88,133,0.28)",
+      transition: "all 0.2s ease",
+    },
+    backButton: {
+      marginTop: "24px",
+      background: "none",
+      border: "none",
+      color: theme.text,
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+      cursor: "pointer",
+      opacity: 0.8,
+      transition: "all 0.2s ease",
+    },
+  };
 };
 
 export default Settings;
