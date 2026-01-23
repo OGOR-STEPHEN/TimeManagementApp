@@ -1,7 +1,9 @@
 import { User, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 
 const TopBar = () => {
+  const navigate = useNavigate();
   return (
     <header style={styles.topBar}>
       <h2 style={styles.title}>Daily Task Tracker</h2>
@@ -17,6 +19,7 @@ const TopBar = () => {
           <Settings size={20} />
         </button>
         <button style={styles.iconButton} title="Profile"
+          onClick={() => navigate("/profile")}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = "rgba(255,255,255,0.08)";
           }}

@@ -62,14 +62,22 @@ const Settings = () => {
             <p style={styles.muted}>Hide tasks you've already completed</p>
           </div>
 
-          <label style={styles.switch}>
-            <input
-              type="checkbox"
-              checked={hideCompleted}
-              onChange={() => setHideCompleted(!hideCompleted)}
+          <button
+            style={{
+              ...styles.sliderButton,
+              background: hideCompleted
+                ? "linear-gradient(135deg, #A75885, #8F3A76)"
+                : "rgba(255,255,255,0.08)",
+            }}
+            onClick={() => setHideCompleted(!hideCompleted)}
+          >
+            <span
+              style={{
+                ...styles.sliderDot,
+                transform: hideCompleted ? "translateX(20px)" : "translateX(0)",
+              }}
             />
-            <span style={styles.slider} />
-          </label>
+          </button>
         </div>
 
         {/* Data */}
@@ -144,6 +152,26 @@ const styles = {
     fontSize: "14px",
     opacity: 0.7,
   },
+  sliderButton: {
+    width: "48px",
+    height: "28px",
+    borderRadius: "20px",
+    border: "none",
+    cursor: "pointer",
+    position: "relative",
+    padding: 0,
+    transition: "background 0.3s ease",
+  },
+  sliderDot: {
+    position: "absolute",
+    width: "24px",
+    height: "24px",
+    borderRadius: "50%",
+    background: "#fff",
+    top: "2px",
+    left: "2px",
+    transition: "transform 0.3s ease",
+  },
   toggleGroup: {
     display: "flex",
     gap: "8px",
@@ -160,18 +188,6 @@ const styles = {
     background: "linear-gradient(135deg, #A75885, #8F3A76)",
     boxShadow: "0 10px 28px rgba(167,88,133,0.28)",
     color: "#fff",
-  },
-  switch: {
-    position: "relative",
-    width: "44px",
-    height: "24px",
-  },
-  slider: {
-    position: "absolute",
-    inset: 0,
-    background: "rgba(255,255,255,0.08)",
-    borderRadius: "20px",
-    cursor: "pointer",
   },
   secondaryButton: {
     padding: "8px 14px",
