@@ -1,10 +1,19 @@
 import TopBar from "../components/TopBar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 const Settings = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const pageBg = "linear-gradient(180deg, rgba(15,23,42,0.72), rgba(8,12,20,0.72))";
+    document.body.style.background = pageBg;
+    document.body.style.backgroundAttachment = "fixed";
+    document.body.style.backgroundSize = "cover";
+    document.body.style.minHeight = "100vh";
+    document.body.style.color = "#E6EEF3";
+  }, []);
 
   const [theme, setTheme] = useState("dark");
   const [hideCompleted, setHideCompleted] = useState(true);
@@ -23,6 +32,7 @@ const Settings = () => {
 
   return (
     <div style={styles.page}>
+      <TopBar />
       <h2 style={styles.title}>Settings</h2>
 
       <div style={styles.card}>
@@ -87,7 +97,17 @@ const Settings = () => {
             <p style={styles.muted}>Manage your task history</p>
           </div>
 
-          <button style={styles.secondaryButton}>
+          <button 
+            style={styles.secondaryButton}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "linear-gradient(135deg, #A75885, #8F3A76)";
+              e.currentTarget.style.boxShadow = "0 10px 28px rgba(167,88,133,0.28)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
             Clear completed tasks
           </button>
         </div>
@@ -122,35 +142,39 @@ const styles = {
     margin: "0 auto",
     padding: "48px 20px",
     color: "#E6EEF3",
+    minHeight: "100vh",
   },
   title: {
     fontSize: "28px",
     fontWeight: 700,
     marginBottom: "24px",
+    color: "#E6EEF3",
   },
   card: {
     background: "rgba(0,0,0,0.35)",
-    backdropFilter: "blur(8px)",
-    borderRadius: "14px",
-    padding: "28px",
-    boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-    border: "1px solid rgba(255,255,255,0.03)",
+    backdropFilter: "blur(10px)",
+    borderRadius: "18px",
+    padding: "32px",
+    boxShadow: "0 18px 40px rgba(0,0,0,0.55)",
+    border: "1px solid rgba(255,255,255,0.05)",
   },
   section: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     padding: "20px 0",
-    borderBottom: "1px solid rgba(255,255,255,0.03)",
+    borderBottom: "1px solid rgba(255,255,255,0.05)",
   },
   sectionTitle: {
-    fontSize: "16px",
+    fontSize: "15px",
     fontWeight: 600,
     marginBottom: "4px",
+    color: "#E6EEF3",
   },
   muted: {
-    fontSize: "14px",
-    opacity: 0.7,
+    fontSize: "13px",
+    opacity: 0.65,
+    color: "#A0AEC0",
   },
   sliderButton: {
     width: "48px",
@@ -183,6 +207,7 @@ const styles = {
     background: "rgba(255,255,255,0.04)",
     color: "#E6F7FF",
     cursor: "pointer",
+    transition: "all 0.2s ease",
   },
   toggleActive: {
     background: "linear-gradient(135deg, #A75885, #8F3A76)",
@@ -196,6 +221,7 @@ const styles = {
     background: "rgba(255,255,255,0.04)",
     color: "#E6F7FF",
     cursor: "pointer",
+    transition: "all 0.2s ease",
   },
   saveRow: {
     display: "flex",
@@ -211,6 +237,7 @@ const styles = {
     color: "#fff",
     background: "linear-gradient(135deg, #A75885, #8F3A76)",
     boxShadow: "0 10px 28px rgba(167,88,133,0.28)",
+    transition: "all 0.2s ease",
   },
   backButton: {
     marginTop: "24px",
@@ -222,6 +249,7 @@ const styles = {
     gap: "8px",
     cursor: "pointer",
     opacity: 0.8,
+    transition: "all 0.2s ease",
   },
 };
 
