@@ -187,10 +187,12 @@ const Profile = () => {
                 e.currentTarget.style.background = themeObj?.buttonBackground
                   ? `${themeObj.buttonBackground}99`
                   : "rgba(255,255,255,0.08)";
+                e.currentTarget.style.color = "#A75885";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background =
                   themeObj?.buttonBackground || "rgba(255,255,255,0.04)";
+                e.currentTarget.style.color = themeObj?.text || "#E6F7FF";
               }}
             >
               Edit Profile

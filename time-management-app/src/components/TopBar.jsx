@@ -98,7 +98,7 @@ const TopBar = () => {
   return (
     <header style={getStyles(theme).topBar}>
       <h2 style={getStyles(theme).title}>
-        {username ? `Hello ${username}` : "Daily Task Tracker"}
+        {username ? `Welcome, ${username}` : "Daily Task Tracker"}
       </h2>
 
       <div style={getStyles(theme).right}>
